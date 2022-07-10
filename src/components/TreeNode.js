@@ -1,4 +1,4 @@
-import React, { Component,useContext,useState } from 'react'
+import React, {useContext,useState } from 'react'
 import Tree from './Tree';
 import { faCaretRight } from "@fortawesome/free-solid-svg-icons";
 import { get, set } from "lodash";
@@ -15,6 +15,7 @@ const TreeNode = ({ node, dataKey }) => {
       const dataItem = get(data, dataKey);
       const parents = [];
       dataItem.checked = event.target.checked;
+      dataItem.indeterminate= false
       for (let index = dataKey.length - 1; index >= 0; index--) {
         const element = dataKey[index];
         if (element === ".") {
@@ -29,15 +30,23 @@ const TreeNode = ({ node, dataKey }) => {
       } 
       parents.forEach((item) => {
         const parentItem = get(data, item);
-       
         const allChild = get(data, item).children.map((item) => item.checked);
+        const allChildIndeterinate = get(data,item).children.map(item=>item.indeterminate)
+
+
         if (allChild.every((child) => child )) {
           parentItem.checked = true;
           parentItem.indeterminate = false
         }
-        else if(allChild.every((child) => child===false )) {
+        else if(allChild.every((child) =>!child)) {
           parentItem.checked = false;
-          parentItem.indeterminate =false; 
+          if(allChildIndeterinate.some(child=>child))
+          {
+            parentItem.indeterminate =true;
+          }
+          else{
+            parentItem.indeterminate = false
+          }  
         }
         else if(allChild.some(child=>!child)){
           parentItem.checked = false;
@@ -77,13 +86,14 @@ const TreeNode = ({ node, dataKey }) => {
             <FontAwesomeIcon className={`ml-2 mr-2`} icon={node.icon}  style={{ color: "#FFFFFF" }} />
             <div
               className="d-flex"
+              style={{alignItems:"center"}}
             >
               <input
                 type="checkbox"
                 checked={node.checked}
                 ref={(input) => {
                   if (input) {
-                    if (node.indeterminate) {
+                    if (node.indeterminate && !node.checked) {
                       input.indeterminate = true;
                     } else {
                       input.indeterminate = false;
