@@ -11,6 +11,7 @@ const TreeNode = ({ node, dataKey }) => {
   
     const hasChild = node?.children?.length ? true : false;
    
+    
     const handleChange = (event) => {
       const dataItem = get(data, dataKey);
       const parents = [];
